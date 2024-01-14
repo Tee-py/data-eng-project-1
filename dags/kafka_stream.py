@@ -33,13 +33,17 @@ def format_data(user_data):
     data['picture'] = user_data['picture']['medium']
     return data
 
+
 def stream_data():
+    from kafka import KafkaProducer
+    import time
     import json
+
     user_data = get_user_data()
     formatted_data = format_data(user_data)
-    print(json.dumps(formatted_data, indent=3))
 
-
+    producer = KafkaProducer(bootstrap_servers=['localhost:9092'], max_block_ms=5000)
+    producer.send('users_created', json.dumps(formatted_data).encode('utf-8'))
 
 # with DAG('user_automation', default_args=default_args, schedule_interval='@daily', catchup=False) as dag:
 #     streaming_task = PythonOperator(
